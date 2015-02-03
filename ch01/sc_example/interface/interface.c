@@ -47,7 +47,7 @@ main(int argc, char *argv[])
 
 	/* Determine sc_example's offset value. */
 	stat.version = sizeof(stat);
-	modstat(modfind("sc_example"), &stat);
+	modstat(modfind("sys/sc_example"), &stat);
 	syscall_num = stat.data.intval;
 
 	/* Call sc_example. */

@@ -28,6 +28,8 @@
  */
 
 #include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
 #include <sys/module.h>
@@ -46,11 +48,11 @@ main(int argc, char *argv[])
 	}
 
 	stat.version = sizeof(stat);
-	modstat(modfind("kmalloc"), &stat);
+	modstat(modfind("sys/kmalloc"), &stat);
 	syscall_num = stat.data.intval;
 
 	syscall(syscall_num, (unsigned long)atoi(argv[1]), &addr);
-	printf("Address of allocated kernel memory: 0x%x\n", addr);
+	printf("Address of allocated kernel memory: 0x%lx\n", addr);
 
 	exit(0);
 }

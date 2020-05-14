@@ -34,6 +34,7 @@
 #include <sys/sysent.h>
 #include <sys/kernel.h>
 #include <sys/systm.h>
+#include <sys/sysproto.h>
 #include <sys/malloc.h>
 
 struct kmalloc_args {
@@ -51,7 +52,7 @@ kmalloc(struct thread *td, void *syscall_args)
 	int error;
 	unsigned long addr;
 
-	MALLOC(addr, unsigned long, uap->size, M_TEMP, M_NOWAIT);
+	addr = (unsigned long)malloc(uap->size, M_TEMP, M_NOWAIT);
 	error = copyout(&addr, uap->addr, sizeof(addr));
 
 	return(error);

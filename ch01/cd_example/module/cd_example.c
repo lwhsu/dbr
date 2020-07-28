@@ -133,17 +133,21 @@ int
 write(struct cdev *dev, struct uio *uio, int ioflag)
 {
 	int error = 0;
+	ssize_t n = uio->uio_resid;
 
 	/*
 	 * Take in a character string, saving it in buf.
-	 * Note: The proper way to transfer data between buffers and I/O
-	 * vectors that cross the user/kernel space boundary is with
-	 * uiomove(), but this way is shorter. For more on device driver I/O
-	 * routines, see the uio(9) manual page.
 	 */
-	error = copyinstr(uio->uio_iov->iov_base, &buf, 512, &len);
+	if (n > sizeof(buf) - 1)
+		n = sizeof(buf) - 1;
+
+	error = uiomove(buf, n, uio);
 	if (error != 0)
 		uprintf("Write to \"cd_example\" failed.\n");
+	else {
+		bzero(buf + n, sizeof(buf) - n);
+		len = strnlen(buf, sizeof(buf)) + 1;
+	}
 
 	return(error);
 }
@@ -155,9 +159,10 @@ read(struct cdev *dev, struct uio *uio, int ioflag)
 
 	if (len <= 0)
 		error = -1;
-	else
+	else {
 		/* Return the saved character string to userland. */
-		copystr(&buf, uio->uio_iov->iov_base, 513, &len);
+		error = uiomove(buf, len, uio);
+	}
 
 	return(error);
 }
